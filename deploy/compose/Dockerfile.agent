@@ -2,10 +2,7 @@ FROM alpine:3.22.1
 
 ARG TARGETARCH
 ARG SPRIG_RELEASE_TAG=sprig-latest
-ARG SPRIG_AMD64_SHA256=a85c26e8aa49e53ee3abf596c9bfec14926f58e060bbe89c1b73af47aef54d82
-ARG SPRIG_ARM64_SHA256=88ba0b841b8e7e7877d07cfbf365b79fff39cf26c9574a9c2125e4824585a4a9
-
-RUN set -eux; \
+ARG SPRIG_AMD64_SHA256=a8131d74d57d7e23b17713bc717d2bad0ce952a3acb0f879310b4997b19191db09G SPRIG_ARM64_SHA256=88bb33400a499787a37df97006cd3cb73696252467112fca429e993a138e0daa514N set -eux; \
     apk add --no-cache bash ca-certificates git openssh-client; \
     case "$TARGETARCH" in \
       amd64) archive="sprig-x86_64-unknown-linux-musl.tar.gz"; expected="$SPRIG_AMD64_SHA256" ;; \
