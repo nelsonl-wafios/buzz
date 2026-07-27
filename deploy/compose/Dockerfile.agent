@@ -15,6 +15,7 @@ RUN set -eux; \
     wget -O /tmp/sprig.tar.gz "https://github.com/block/buzz/releases/download/${SPRIG_RELEASE_TAG}/${archive}"; \
     echo "${expected}  /tmp/sprig.tar.gz" | sha256sum -c -; \
     tar -xzf /tmp/sprig.tar.gz -C /usr/local/bin; \
+    chmod 0755 /usr/local/bin; \
     chmod 0555 /usr/local/bin/sprig /usr/local/bin/buzz-acp /usr/local/bin/buzz-agent /usr/local/bin/buzz-dev-mcp; \
     for helper in buzz rg tree git-credential-nostr git-sign-nostr; do ln -s /usr/local/bin/sprig "/usr/local/bin/${helper}"; done; \
     addgroup -S buzz; \
