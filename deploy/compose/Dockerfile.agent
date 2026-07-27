@@ -1,0 +1,28 @@
+FROM alpine:3.22.1
+
+ARG TARGETARCH
+ARG SPRIG_RELEASE_TAG=sprig-latest
+ARG SPRIG_AMD64_SHA256=a85c26e8aa49e53ee3abf596c9bfec14926f58e060bbe89c1b73af47aef54d82
+ARG SPRIG_ARM64_SHA256=88ba0b841b8e7e7877d07cfbf365b79fff39cf26c9574a9c2125e4824585a4a9
+
+RUN set -eux; \
+    apk add --no-cache bash ca-certificates git openssh-client; \
+    case "$TARGETARCH" in \
+      amd64) archive="sprig-x86_64-unknown-linux-musl.tar.gz"; expected="$SPRIG_AMD64_SHA256" ;; \
+      arm64) archive="sprig-aarch64-unknown-linux-musl.tar.gz"; expected="$SPRIG_ARM64_SHA256" ;; \
+      *) echo >&2 "unsupported architecture: $TARGETARCH"; exit 1 ;; \
+    esac; \
+    wget -O /tmp/sprig.tar.gz "https://github.com/block/buzz/releases/download/${SPRIG_RELEASE_TAG}/${archive}"; \
+    echo "${expected}  /tmp/sprig.tar.gz" | sha256sum -c -; \
+    tar -xzf /tmp/sprig.tar.gz -C /usr/local/bin; \
+    chmod 0555 /usr/local/bin/sprig /usr/local/bin/buzz-acp /usr/local/bin/buzz-agent /usr/local/bin/buzz-dev-mcp; \
+    for helper in buzz rg tree git-credential-nostr git-sign-nostr; do ln -s /usr/local/bin/sprig "/usr/local/bin/${helper}"; done; \
+    addgroup -S buzz; \
+    adduser -S -D -H -G buzz -h /var/lib/buzz buzz; \
+    mkdir -p /var/lib/buzz /workspace; \
+    chown -R buzz:buzz /var/lib/buzz /workspace; \
+    rm /tmp/sprig.tar.gz
+
+USER buzz
+WORKDIR /workspace
+ENTRYPOINT ["/usr/local/bin/buzz-acp"]
