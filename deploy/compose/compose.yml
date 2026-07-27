@@ -24,33 +24,7 @@ services:
       - buzz-git-data:/data/git
     depends_on:
       postgres:
-        cond  perpetual-agent:
-    build:
-      context: .
-      dockerfile: Dockerfile.agent
-    environment:
-      BUZZ_RELAY_URL: wss://buzz.wmclabs.io
-      BUZZ_PRIVATE_KEY: ${BUZZ_PERPETUAL_AGENT_PRIVATE_KEY:?set BUZZ_PERPETUAL_AGENT_PRIVATE_KEY}
-      BUZZ_ACP_AGENT_OWNER: 941f5e2701e27f2b5daae81c5ea07ba1abd1a23f65bbd160060f76dc6bda0e7f
-      BUZZ_ACP_AGENT_COMMAND: /usr/local/bin/buzz-agent
-      BUZZ_ACP_MCP_COMMAND: /usr/local/bin/buzz-dev-mcp
-      BUZZ_ACP_LAZY_POOL: "true"
-      BUZZ_ACP_RESPOND_TO: owner-only
-      BUZZ_AGENT_PROVIDER: openai-compat
-      OPENAI_COMPAT_API_KEY: ${CLI_PROXY_API_KEY:?set CLI_PROXY_API_KEY}
-      OPENAI_COMPAT_BASE_URL: https://cliproxy.wmclabs.io/v1
-      OPENAI_COMPAT_MODEL: ${BUZZ_PERPETUAL_AGENT_MODEL:-gpt-5.4}
-      OPENAI_COMPAT_API: chat
-      RUST_LOG: ${BUZZ_PERPETUAL_AGENT_LOG:-info}
-    depends_on:
-      relay:
         condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - buzz-net
-
-  postgres:
-ice_healthy
       redis:
         condition: service_healthy
       minio:
@@ -80,6 +54,31 @@ ice_healthy
       BUZZ_PAIR_RELAY_BIND_ADDR: 0.0.0.0:5000
     expose:
       - "5000"
+    restart: unless-stopped
+    networks:
+      - buzz-net
+
+  perpetual-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    environment:
+      BUZZ_RELAY_URL: wss://buzz.wmclabs.io
+      BUZZ_PRIVATE_KEY: ${BUZZ_PERPETUAL_AGENT_PRIVATE_KEY:?set BUZZ_PERPETUAL_AGENT_PRIVATE_KEY}
+      BUZZ_ACP_AGENT_OWNER: 941f5e2701e27f2b5daae81c5ea07ba1abd1a23f65bbd160060f76dc6bda0e7f
+      BUZZ_ACP_AGENT_COMMAND: /usr/local/bin/buzz-agent
+      BUZZ_ACP_MCP_COMMAND: /usr/local/bin/buzz-dev-mcp
+      BUZZ_ACP_LAZY_POOL: "true"
+      BUZZ_ACP_RESPOND_TO: owner-only
+      BUZZ_AGENT_PROVIDER: openai-compat
+      OPENAI_COMPAT_API_KEY: ${CLI_PROXY_API_KEY:?set CLI_PROXY_API_KEY}
+      OPENAI_COMPAT_BASE_URL: https://cliproxy.wmclabs.io/v1
+      OPENAI_COMPAT_MODEL: ${BUZZ_PERPETUAL_AGENT_MODEL:-gpt-5.4}
+      OPENAI_COMPAT_API: chat
+      RUST_LOG: ${BUZZ_PERPETUAL_AGENT_LOG:-info}
+    depends_on:
+      relay:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - buzz-net
